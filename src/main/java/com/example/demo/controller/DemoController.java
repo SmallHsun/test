@@ -12,7 +12,7 @@ public class DemoController {
 
     @GetMapping("/hello")
     public String hello(Model model){
-        model.addAttribute("message", "Hello World!1001 happy");
+        model.addAttribute("message", "Hello World!1001 second commit!");
         return "hello";
     }
 }
