@@ -6,7 +6,7 @@ pipeline {
         JAVA_HOME = "/opt/java/openjdk"
         SSH_USER = 'user'     
         SSH_HOST = '192.168.1.106'         
-        REMOTE_PATH = '/root/SpringBootTestDemo/'        
+        REMOTE_PATH = '/home/user/SpringBoot'        
     }
 
     stages {
