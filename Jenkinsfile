@@ -55,9 +55,19 @@ pipeline {
                     sleep 10;
 
                     # 啟動新的Spring Boot應用
-		    nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
                     echo "Starting the new Spring Boot application...";
-                 
+                    nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > ${REMOTE_PATH}/app.log 2>&1 &
+                    
+                    # 等待一段時間以確保進程已經啟動
+                    sleep 5;
+
+                    # 檢查新應用是否成功啟動
+                    if ps -ef | grep -v grep | grep -q demo1-0.0.1-SNAPSHOT.jar; then
+                        echo "Spring Boot application started successfully.";
+                    else
+                        echo "Failed to start Spring Boot application.";
+                        cat ${REMOTE_PATH}/app.log;  # 打印日誌以便檢查
+                    fi
                     '
                     """
                 }
