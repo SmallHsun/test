@@ -41,18 +41,22 @@ pipeline {
                 // 使用SSH登錄到Ubuntu虛擬機並啟動Spring Boot應用
                 sshagent(['jenkins-ssh-key-id']) { // 替換為你在Jenkins中配置的SSH憑證ID
                      sh """
-            		ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} '
-           		set -x;  # 開啟調試模式以顯示執行過程
-            		# 檢查是否有正在運行的Spring Boot應用
-            		ps aux | grep demo1-0.0.1-SNAPSHOT.jar;
+            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} '
+            set -x;  # 開啟調試模式以顯示執行過程
+            
+            # 檢查是否有正在運行的Spring Boot應用
+            if ps -ef | grep -v grep | grep -q demo1-0.0.1-SNAPSHOT.jar; then
+                echo "Stopping the running Spring Boot application...";
+                pkill -f demo1-0.0.1-SNAPSHOT.jar;
+            else
+                echo "No running Spring Boot application found.";
+            fi
 
-            		# 停止正在運行的Spring Boot應用
-            		pkill -f demo1-0.0.1-SNAPSHOT.jar > pkill.log 2>&1 || true;
-
-            		# 啟動新的Spring Boot應用
-            		nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > ${REMOTE_PATH}/app.log 2>&1 &
-            		'
-            		"""
+            # 啟動新的Spring Boot應用
+            echo "Starting the new Spring Boot application...";
+            nohup java -jar /home/user/SpringBoot/demo1-0.0.1-SNAPSHOT.jar > /home/user/SpringBoot/app.log 2>&1 &
+            '
+            """
                 }
             }
         }
