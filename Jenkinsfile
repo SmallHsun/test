@@ -28,7 +28,7 @@ pipeline {
         stage('Transfer JAR to Ubuntu') {
             steps {
                 // 使用SCP將JAR文件從Jenkins傳輸到Ubuntu虛擬機
-                sshagent(['jenkins-ssh-key-id']) { // 替換為你在Jenkins中配置的SSH憑證ID
+                sshagent(['jenkins-ssh-key-id']) {
                     sh """
                     scp -o StrictHostKeyChecking=no target/demo1-0.0.1-SNAPSHOT.jar ${SSH_USER}@${SSH_HOST}:${REMOTE_PATH}
                     """
@@ -38,14 +38,27 @@ pipeline {
 
         stage('Deploy and Start Spring Boot') {
             steps {
-                // 使用SSH登錄到Ubuntu虛擬機並啟動Spring Boot應用
-                sshagent(['jenkins-ssh-key-id']) { // 替換為你在Jenkins中配置的SSH憑證ID
-                     sh """
-            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} '
-            set -x;  # 開啟調試模式以顯示執行過程
-            nohup java -jar /home/user/SpringBoot/demo1-0.0.1-SNAPSHOT.jar > /home/user/SpringBoot/app.log 2>&1 &
-            '
-            """
+                sshagent(['jenkins-ssh-key-id']) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} '
+                    set -x;  # 開啟調試模式
+
+                    # 停止正在運行的Spring Boot應用
+                    if ps -ef | grep -v grep | grep -q demo1-0.0.1-SNAPSHOT.jar; then
+                        echo "Stopping the running Spring Boot application...";
+                        pkill -f demo1-0.0.1-SNAPSHOT.jar;
+                    else
+                        echo "No running Spring Boot application found.";
+                    fi
+
+                    # 等待一段時間以確保進程已經停止
+                    sleep 5;
+
+                    # 啟動新的Spring Boot應用
+                    echo "Starting the new Spring Boot application...";
+                    nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > ${REMOTE_PATH}/app.log 2>&1 &
+                    '
+                    """
                 }
             }
         }
