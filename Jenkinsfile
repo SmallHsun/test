@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-	MAVEN_HOME = "/usr/share/maven"
+        MAVEN_HOME = "/usr/share/maven"
         JAVA_HOME = "/opt/java/openjdk"
         SSH_USER = 'user'     
         SSH_HOST = '192.168.1.106'         
@@ -28,20 +28,24 @@ pipeline {
         stage('Transfer JAR to Ubuntu') {
             steps {
                 // 使用SCP將JAR文件從Jenkins傳輸到Ubuntu虛擬機
-                sh """
-                scp -o StrictHostKeyChecking=no target/demo1-0.0.1-SNAPSHOT.jar ${SSH_USER}@${SSH_HOST}:${REMOTE_PATH}
-                """
+                sshagent(['jenkins-ssh-key-id']) { // 替換為你在Jenkins中配置的SSH憑證ID
+                    sh """
+                    scp -o StrictHostKeyChecking=no target/demo1-0.0.1-SNAPSHOT.jar ${SSH_USER}@${SSH_HOST}:${REMOTE_PATH}
+                    """
+                }
             }
         }
 
         stage('Deploy and Start Spring Boot') {
             steps {
                 // 使用SSH登錄到Ubuntu虛擬機並啟動Spring Boot應用
-                sh """
-                ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} '
-                nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
-                '
-                """
+                sshagent(['jenkins-ssh-key-id']) { // 替換為你在Jenkins中配置的SSH憑證ID
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} '
+                    nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
+                    '
+                    """
+                }
             }
         }
     }
