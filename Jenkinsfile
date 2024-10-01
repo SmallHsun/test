@@ -52,11 +52,11 @@ pipeline {
                     fi
 
                     # 等待一段時間以確保進程已經停止
-                    sleep 5;
+                    sleep 10;
 
                     # 啟動新的Spring Boot應用
                     echo "Starting the new Spring Boot application...";
-                    nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > ${REMOTE_PATH}/app.log 2>&1 &
+                     nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
                     '
                     """
                 }
