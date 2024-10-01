@@ -55,8 +55,9 @@ pipeline {
                     sleep 10;
 
                     # 啟動新的Spring Boot應用
+		    nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
                     echo "Starting the new Spring Boot application...";
-                     nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
+                 
                     '
                     """
                 }
