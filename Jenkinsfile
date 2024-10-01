@@ -37,21 +37,23 @@ pipeline {
         }
 
         stage('Deploy and Start Spring Boot') {
-    	    steps {
-        	sshagent(['jenkins-ssh-key-id']) { // 替換為你在Jenkins中配置的SSH憑證ID
-            	sh """
-            	ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} '
-            	set -x;  # 開啟調試模式以顯示執行過程
-            	# 停止正在運行的Spring Boot應用
-            	pkill -f demo1-0.0.1-SNAPSHOT.jar || true;
+            steps {
+                // 使用SSH登錄到Ubuntu虛擬機並啟動Spring Boot應用
+                sshagent(['jenkins-ssh-key-id']) { // 替換為你在Jenkins中配置的SSH憑證ID
+                     sh """
+            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} '
+            set -x;  # 開啟調試模式以顯示執行過程
+            # 停止正在運行的Spring Boot應用
+            pkill -f demo1-0.0.1-SNAPSHOT.jar || true;
 
-            	# 啟動新的Spring Boot應用
-            	nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > ${REMOTE_PATH}/app.log 2>&1 &
-            	'
-            	"""
+            # 啟動新的Spring Boot應用
+            nohup java -jar ${REMOTE_PATH}/demo1-0.0.1-SNAPSHOT.jar > ${REMOTE_PATH}/app.log 2>&1 &
+            '
+            """
+                }
+            }
         }
     }
-}
 
     post {
         success {
